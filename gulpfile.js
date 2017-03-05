@@ -1,26 +1,23 @@
 "use strict";
 
 const gulp = require("gulp");
+const sass = require("gulp-sass");
+const concat = require("gulp-concat");
+const debug = require("gulp-debug");
 
-gulp.task("default", () => {
-  return gulp.src("source/**/*.*")
-    .on("data", (file) => {
-      console.log({
-        contents: file.contents,
-        path: file.path,
-        cwd: file.cwd,
-        base: file.base,
-        // path component helpers
-        relative: file.relative,
-        dirname: file.dirname,
-        basename: file.basename,
-        stem: file.stem,
-        extname: file.extname
-      });
-    })
-    .pipe(gulp.dest( (file) => {
-      return file.extname == ".js" ? "js" :
-             file.extname == ".css" ? "css" :
-             "dest";
-    }));
+gulp.task("styles", () => {
+  return gulp.src("source/styles/**/*.scss")
+    .pipe(debug({
+      title: "gulp.src"
+    }))
+    .pipe(sass()
+      .on("error", sass.logError))
+    .pipe(debug({
+      title: "sass"
+    }))
+    .pipe(concat("all.css"))
+    .pipe(debug({
+      title: "concat"
+    }))
+    .pipe(gulp.dest("dest"));
 });
