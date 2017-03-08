@@ -1,26 +1,39 @@
 "use strict";
 
 const gulp = require("gulp");
+const sass = require("gulp-sass");
+const concat = require("gulp-concat");
+const debug = require("gulp-debug");
+const sourcemaps = require("gulp-sourcemaps");
+const gulpIf = require("gulp-if");
+const del = require("del");
 
-gulp.task("default", () => {
-  return gulp.src("source/**/*.*")
-    .on("data", (file) => {
-      console.log({
-        contents: file.contents,
-        path: file.path,
-        cwd: file.cwd,
-        base: file.base,
-        // path component helpers
-        relative: file.relative,
-        dirname: file.dirname,
-        basename: file.basename,
-        stem: file.stem,
-        extname: file.extname
-      });
-    })
-    .pipe(gulp.dest( (file) => {
-      return file.extname == ".js" ? "js" :
-             file.extname == ".css" ? "css" :
-             "dest";
-    }));
+const path = require("path");
+
+const IS_DEVELOPMENT = !process.env.NODE_ENV || process.env.NODE_ENV == "development";
+
+const DEST_PATH = path.join(__dirname, "dest");
+const ASSETS_PATH = path.join(__dirname, "source/assets");
+
+gulp.task("styles", () => {
+  return gulp.src("source/styles/styles.scss")
+    .pipe(gulpIf(IS_DEVELOPMENT, sourcemaps.init()))
+    .pipe(sass()
+      .on("error", sass.logError))
+    .pipe(gulpIf(IS_DEVELOPMENT, sourcemaps.write()))
+    .pipe(gulp.dest(DEST_PATH));
 });
+
+gulp.task("clean", () => {
+  return del(DEST_PATH);
+});
+
+gulp.task("assets", () => {
+  return gulp.src(path.join(ASSETS_PATH, "**"), {base: "source"})
+    .pipe(gulp.dest(DEST_PATH));
+});
+
+gulp.task("build", gulp.series(
+  "clean",
+  gulp.parallel("styles", "assets"))
+);

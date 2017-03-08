@@ -9,6 +9,13 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "gulp": "github:gulpjs/gulp#4.0"
+    "del": "^2.2.2",
+    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-debug": "^3.1.0",
+    "gulp-if": "^2.0.2",
+    "gulp-sass": "^3.1.0",
+    "gulp-sourcemaps": "^2.4.1",
+    "node-static": "^0.7.9"
   }
 }
