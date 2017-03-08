@@ -16,12 +16,11 @@ const DEST_PATH = path.join(__dirname, "dest");
 const ASSETS_PATH = path.join(__dirname, "source/assets");
 
 gulp.task("styles", () => {
-  return gulp.src("source/styles/**/*.scss")
+  return gulp.src("source/styles/styles.scss")
     .pipe(gulpIf(IS_DEVELOPMENT, sourcemaps.init()))
     .pipe(sass()
       .on("error", sass.logError))
     .pipe(gulpIf(IS_DEVELOPMENT, sourcemaps.write()))
-    .pipe(gulpIf(IS_DEVELOPMENT, concat("all.css")))
     .pipe(gulp.dest(DEST_PATH));
 });
 
