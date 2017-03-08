@@ -12,7 +12,8 @@ const path = require("path");
 
 const IS_DEVELOPMENT = !process.env.NODE_ENV || process.env.NODE_ENV == "development";
 
-const DEST = path.join(__dirname, "dest");
+const DEST_PATH = path.join(__dirname, "dest");
+const ASSETS_PATH = path.join(__dirname, "source/assets");
 
 gulp.task("styles", () => {
   return gulp.src("source/styles/**/*.scss")
@@ -21,11 +22,19 @@ gulp.task("styles", () => {
       .on("error", sass.logError))
     .pipe(gulpIf(IS_DEVELOPMENT, sourcemaps.write()))
     .pipe(gulpIf(IS_DEVELOPMENT, concat("all.css")))
-    .pipe(gulp.dest(DEST));
+    .pipe(gulp.dest(DEST_PATH));
 });
 
 gulp.task("clean", () => {
-  return del(DEST);
+  return del(DEST_PATH);
 });
 
-gulp.task("build", gulp.series("clean", "styles"));
+gulp.task("assets", () => {
+  return gulp.src(path.join(ASSETS_PATH, "**"), {base: "source"})
+    .pipe(gulp.dest(DEST_PATH));
+});
+
+gulp.task("build", gulp.series(
+  "clean",
+  gulp.parallel("styles", "assets"))
+);
