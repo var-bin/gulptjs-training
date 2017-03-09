@@ -29,7 +29,13 @@ gulp.task("clean", () => {
 });
 
 gulp.task("assets", () => {
-  return gulp.src(path.join(ASSETS_PATH, "**"), {base: "source"})
+  return gulp.src(path.join(ASSETS_PATH, "**"), {
+      base: "source",
+      since: gulp.lastRun("assets") // return last run Date for task
+    })
+    .pipe(debug({
+      title: "assets"
+    }))
     .pipe(gulp.dest(DEST_PATH));
 });
 
@@ -37,3 +43,38 @@ gulp.task("build", gulp.series(
   "clean",
   gulp.parallel("styles", "assets"))
 );
+
+gulp.task("watch", () => {
+  let stylesWatcher = gulp.watch("source/styles/**/*.scss", gulp.series("styles"));
+  let assetsWatcher = gulp.watch("source/assets/**/*.*", gulp.series("assets"));
+
+  const SOURCE = "source";
+  const DEST = "dest";
+
+  assetsWatcher.on("unlink", (filepath) => {
+    let filepathFromSrc = path.relative(path.resolve(SOURCE), filepath);
+
+    // Concatenating the 'build' absolute path used by gulp.dest in the scripts task
+    let destFilepath = path.resolve(DEST, filepathFromSrc);
+
+    console.log("_unlink_ source: ", filepathFromSrc, "\n_unlink_ dest: ", destFilepath);
+
+    del.sync(destFilepath);
+  });
+
+  assetsWatcher.on("add", (filepath) => {
+    let filepathFromSrc = path.relative(path.resolve(SOURCE), filepath);
+
+    // Concatenating the 'build' absolute path used by gulp.dest in the scripts task
+    let destFilepath = path.resolve(DEST, filepathFromSrc);
+
+    console.log("_add_ source: ", path.join(__dirname, SOURCE, filepathFromSrc), "\n_add_ dest: ", destFilepath);
+
+    return gulp.src(path.join(__dirname, SOURCE, filepathFromSrc), {
+      base: SOURCE
+    })
+      .pipe(gulp.dest(DEST_PATH));
+  });
+});
+
+gulp.task("dev", gulp.series("build", "watch"));
