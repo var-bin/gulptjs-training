@@ -7,6 +7,7 @@ const debug = require("gulp-debug");
 const sourcemaps = require("gulp-sourcemaps");
 const gulpIf = require("gulp-if");
 const del = require("del");
+const newer = require("gulp-newer");
 
 const path = require("path");
 
@@ -14,6 +15,7 @@ const IS_DEVELOPMENT = !process.env.NODE_ENV || process.env.NODE_ENV == "develop
 
 const DEST_PATH = path.join(__dirname, "dest");
 const ASSETS_PATH = path.join(__dirname, "source/assets");
+const SOURCE_PATH = path.join(__dirname, "source");
 
 gulp.task("styles", () => {
   return gulp.src("source/styles/styles.scss")
@@ -33,6 +35,7 @@ gulp.task("assets", () => {
       base: "source",
       since: gulp.lastRun("assets") // return last run Date for task
     })
+    .pipe(newer(DEST_PATH))
     .pipe(debug({
       title: "assets"
     }))
