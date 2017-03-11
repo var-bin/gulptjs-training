@@ -8,6 +8,7 @@ const sourcemaps = require("gulp-sourcemaps");
 const gulpIf = require("gulp-if");
 const del = require("del");
 const newer = require("gulp-newer");
+const browserSync = require('browser-sync').create();
 
 const path = require("path");
 
@@ -80,4 +81,16 @@ gulp.task("watch", () => {
   });
 });
 
-gulp.task("dev", gulp.series("build", "watch"));
+gulp.task("serve", () => {
+  browserSync.init({
+    server: {
+      baseDir: ["dest/assets", "dest"]
+    },
+    port: 8080
+  });
+});
+
+gulp.task("dev", gulp.series(
+  "build",
+  gulp.parallel("watch", "serve"))
+);
