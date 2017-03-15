@@ -10,6 +10,7 @@ const del = require("del");
 const newer = require("gulp-newer");
 const browserSync = require("browser-sync").create();
 const notify = require("gulp-notify");
+const plumber = require("gulp-plumber");
 
 const path = require("path");
 
@@ -21,14 +22,16 @@ const SOURCE_PATH = path.join(__dirname, "source");
 
 gulp.task("styles", () => {
   return gulp.src("source/styles/styles.scss")
-    .pipe(gulpIf(IS_DEVELOPMENT, sourcemaps.init()))
-    .pipe(sass()
-      .on("error", notify.onError( (err) => {
+    .pipe(plumber({
+      errorHandler: notify.onError( (err) => {
         return {
           title: "Styles SCSS",
           message: err.message
         };
-      })))
+      })
+    }))
+    .pipe(gulpIf(IS_DEVELOPMENT, sourcemaps.init()))
+    .pipe(sass())
     .pipe(gulpIf(IS_DEVELOPMENT, sourcemaps.write()))
     .pipe(gulp.dest(DEST_PATH));
 });
