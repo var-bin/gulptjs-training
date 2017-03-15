@@ -8,7 +8,8 @@ const sourcemaps = require("gulp-sourcemaps");
 const gulpIf = require("gulp-if");
 const del = require("del");
 const newer = require("gulp-newer");
-const browserSync = require('browser-sync').create();
+const browserSync = require("browser-sync").create();
+const notify = require("gulp-notify");
 
 const path = require("path");
 
@@ -22,7 +23,12 @@ gulp.task("styles", () => {
   return gulp.src("source/styles/styles.scss")
     .pipe(gulpIf(IS_DEVELOPMENT, sourcemaps.init()))
     .pipe(sass()
-      .on("error", sass.logError))
+      .on("error", notify.onError( (err) => {
+        return {
+          title: "Styles SCSS",
+          message: err.message
+        };
+      })))
     .pipe(gulpIf(IS_DEVELOPMENT, sourcemaps.write()))
     .pipe(gulp.dest(DEST_PATH));
 });
