@@ -8,7 +8,10 @@ const sourcemaps = require("gulp-sourcemaps");
 const gulpIf = require("gulp-if");
 const del = require("del");
 const newer = require("gulp-newer");
-const browserSync = require('browser-sync').create();
+const browserSync = require("browser-sync").create();
+const notify = require("gulp-notify");
+const plumber = require("gulp-plumber");
+const multipipe = require("multipipe");
 
 const path = require("path");
 
@@ -19,12 +22,13 @@ const ASSETS_PATH = path.join(__dirname, "source/assets");
 const SOURCE_PATH = path.join(__dirname, "source");
 
 gulp.task("styles", () => {
-  return gulp.src("source/styles/styles.scss")
-    .pipe(gulpIf(IS_DEVELOPMENT, sourcemaps.init()))
-    .pipe(sass()
-      .on("error", sass.logError))
-    .pipe(gulpIf(IS_DEVELOPMENT, sourcemaps.write()))
-    .pipe(gulp.dest(DEST_PATH));
+  return multipipe(
+    gulp.src("source/styles/styles.scss"),
+    gulpIf(IS_DEVELOPMENT, sourcemaps.init()),
+    sass(),
+    gulpIf(IS_DEVELOPMENT, sourcemaps.write()),
+    gulp.dest(DEST_PATH)
+  ).on("error", notify.onError());
 });
 
 gulp.task("clean", () => {
