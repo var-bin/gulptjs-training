@@ -12,6 +12,8 @@ const browserSync = require("browser-sync").create();
 const notify = require("gulp-notify");
 const plumber = require("gulp-plumber");
 const multipipe = require("multipipe");
+const through2 = require("through2").obj;
+const File = require("vinyl");
 
 const path = require("path");
 
@@ -98,3 +100,30 @@ gulp.task("dev", gulp.series(
   "build",
   gulp.parallel("watch", "serve"))
 );
+
+gulp.task("assets2", (cb) => {
+
+  // store last time modification
+  const mtimes = {};
+
+  return gulp.src("source/styles/styles.scss")
+    .pipe(through2(
+      function (file, enc, callback) {
+        mtimes[file.relative] = file.stat.mtime;
+        callback(null, file);
+      },
+
+      function (callback) {
+        let manifest = new File({
+          // cwd base path contents
+          contents: new Buffer(JSON.stringify(mtimes)),
+          base: __dirname,
+          path: path.join(__dirname, "manifest.json")
+        });
+
+        this.push(manifest);
+        callback();
+      }
+    ))
+    .pipe(gulp.dest(DEST_PATH));
+});
