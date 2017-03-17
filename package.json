@@ -21,6 +21,7 @@
     "gulp-sass": "^3.1.0",
     "gulp-sourcemaps": "^2.4.1",
     "multipipe": "^1.0.2",
-    "node-static": "^0.7.9"
+    "node-static": "^0.7.9",
+    "through2": "^2.0.3"
   }
 }
