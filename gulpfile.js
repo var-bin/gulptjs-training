@@ -111,8 +111,17 @@ gulp.task("assets2", (cb) => {
       function (file, enc, callback) {
         mtimes[file.relative] = file.stat.mtime;
         callback(null, file);
+      }
+    ))
+    .pipe(gulp.dest(DEST_PATH))
+    .pipe(through2(
+      // in this case we will not do anythink with files
+      // ignore these files with call empty callback()
+      function (file, enc, callback) {
+        callback();
       },
 
+      // create manifest
       function (callback) {
         let manifest = new File({
           // cwd base path contents
@@ -126,11 +135,5 @@ gulp.task("assets2", (cb) => {
         callback();
       }
     ))
-    .pipe(gulp.dest( file => {
-      if (file.isManifest) {
-        return process.cwd();
-      }
-
-      return DEST_PATH;
-    }));
+    .pipe(gulp.dest("."));
 });
