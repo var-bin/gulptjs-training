@@ -121,9 +121,16 @@ gulp.task("assets2", (cb) => {
           path: path.join(__dirname, "manifest.json")
         });
 
+        manifest.isManifest = true;
         this.push(manifest);
         callback();
       }
     ))
-    .pipe(gulp.dest(DEST_PATH));
+    .pipe(gulp.dest( file => {
+      if (file.isManifest) {
+        return process.cwd();
+      }
+
+      return DEST_PATH;
+    }));
 });
