@@ -4,4 +4,5 @@
 
 function defaultController() {
   // body...
+  let main = "sss";
 }
