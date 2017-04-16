@@ -15,9 +15,9 @@ const multipipe = require("multipipe");
 const through2 = require("through2").obj;
 const File = require("vinyl");
 const eslint = require("gulp-eslint");
-const fs = require("fs");
 const combiner = require("stream-combiner2").obj;
 
+const fs = require("fs");
 const path = require("path");
 
 const IS_DEVELOPMENT = !process.env.NODE_ENV || process.env.NODE_ENV == "development";
@@ -27,14 +27,23 @@ const ASSETS_PATH = path.join(__dirname, "source/assets");
 const SOURCE_PATH = path.join(__dirname, "source");
 const SOURCE_JS_PATH = path.join(SOURCE_PATH, "js/**/*.js");
 
-gulp.task("styles", () => {
-  return multipipe(
-    gulp.src("source/styles/styles.scss"),
-    gulpIf(IS_DEVELOPMENT, sourcemaps.init()),
-    sass(),
-    gulpIf(IS_DEVELOPMENT, sourcemaps.write()),
-    gulp.dest(DEST_PATH)
-  ).on("error", notify.onError());
+function lazyRequireTask(taskName, path, options) {
+
+  options = options || {};
+
+  options.taskName = taskName;
+
+  gulp.task(taskName, (callback) => {
+    let task = require(path).call(this, options);
+
+    return task(callback);
+  });
+}
+
+lazyRequireTask("styles", path.normalize("./tasks/styles"), {
+  src: path.normalize("source/styles/styles.scss"),
+  IS_DEVELOPMENT: IS_DEVELOPMENT,
+  DEST_PATH: DEST_PATH
 });
 
 gulp.task("clean", () => {
