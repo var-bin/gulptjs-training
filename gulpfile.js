@@ -104,13 +104,9 @@ gulp.task("watch", () => {
   });
 });
 
-gulp.task("serve", () => {
-  browserSync.init({
-    server: {
-      baseDir: ["dest/assets", "dest"]
-    },
-    port: 8080
-  });
+lazyRequireTask("serve", path.normalize("./tasks/serve"), {
+  baseDirs: ["dest/assets", "dest"],
+  port: 8080
 });
 
 gulp.task("dev", gulp.series(
