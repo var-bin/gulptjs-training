@@ -6,7 +6,6 @@ const concat = require("gulp-concat");
 const debug = require("gulp-debug");
 const sourcemaps = require("gulp-sourcemaps");
 const gulpIf = require("gulp-if");
-const del = require("del");
 const newer = require("gulp-newer");
 const browserSync = require("browser-sync").create();
 const notify = require("gulp-notify");
@@ -46,8 +45,8 @@ lazyRequireTask("styles", path.normalize("./tasks/styles"), {
   DEST_PATH: DEST_PATH
 });
 
-gulp.task("clean", () => {
-  return del(DEST_PATH);
+lazyRequireTask("clean", path.normalize("./tasks/clean"), {
+  DEST_PATH: DEST_PATH
 });
 
 gulp.task("assets", () => {
