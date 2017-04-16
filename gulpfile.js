@@ -3,10 +3,8 @@
 const gulp = require("gulp");
 const sass = require("gulp-sass");
 const concat = require("gulp-concat");
-const debug = require("gulp-debug");
 const sourcemaps = require("gulp-sourcemaps");
 const gulpIf = require("gulp-if");
-const newer = require("gulp-newer");
 const browserSync = require("browser-sync").create();
 const notify = require("gulp-notify");
 const plumber = require("gulp-plumber");
@@ -26,6 +24,16 @@ const ASSETS_PATH = path.join(__dirname, "source/assets");
 const SOURCE_PATH = path.join(__dirname, "source");
 const SOURCE_JS_PATH = path.join(SOURCE_PATH, "js/**/*.js");
 
+/**
+ * @function lazyRequireTask - lazy load tasks
+ *
+ * @param {string} taskName - gulp task name.
+ * Load task from "./task/taskName.js"
+ * @param {string} path - path to current task
+ * @param {object} options - a set of options that need for current task
+ *
+ * @return {function}
+ */
 function lazyRequireTask(taskName, path, options) {
 
   options = options || {};
@@ -49,16 +57,13 @@ lazyRequireTask("clean", path.normalize("./tasks/clean"), {
   DEST_PATH: DEST_PATH
 });
 
-gulp.task("assets", () => {
-  return gulp.src(path.join(ASSETS_PATH, "**"), {
-      base: "source",
-      since: gulp.lastRun("assets") // return last run Date for task
-    })
-    .pipe(newer(DEST_PATH))
-    .pipe(debug({
-      title: "assets"
-    }))
-    .pipe(gulp.dest(DEST_PATH));
+lazyRequireTask("assets", path.normalize("./tasks/assets"), {
+  pattern: "**",
+  base: "source",
+  lastRunTask: "assets",
+  debugTitle: "assets",
+  ASSETS_PATH: ASSETS_PATH,
+  DEST_PATH: DEST_PATH
 });
 
 gulp.task("build", gulp.series(
