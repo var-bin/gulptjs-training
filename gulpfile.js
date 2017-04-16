@@ -1,18 +1,9 @@
 "use strict";
 
 const gulp = require("gulp");
-const sass = require("gulp-sass");
 const concat = require("gulp-concat");
-const sourcemaps = require("gulp-sourcemaps");
-const gulpIf = require("gulp-if");
-const browserSync = require("browser-sync").create();
-const notify = require("gulp-notify");
-const plumber = require("gulp-plumber");
-const multipipe = require("multipipe");
 const through2 = require("through2").obj;
 const File = require("vinyl");
-const eslint = require("gulp-eslint");
-const combiner = require("stream-combiner2").obj;
 
 const fs = require("fs");
 const path = require("path");
@@ -23,6 +14,8 @@ const DEST_PATH = path.join(__dirname, "dest");
 const ASSETS_PATH = path.join(__dirname, "source/assets");
 const SOURCE_PATH = path.join(__dirname, "source");
 const SOURCE_JS_PATH = path.join(SOURCE_PATH, "js/**/*.js");
+
+const MANIFEST_NAME = "eslintManifest.json";
 
 /**
  * @function lazyRequireTask - lazy load tasks
@@ -151,76 +144,7 @@ gulp.task("assets2", (cb) => {
     .pipe(gulp.dest("."));
 });
 
-gulp.task("lint", () => {
-
-  // store eslint results
-  let eslintResults = {};
-
-  // filename with store
-  let eslintResultsPath = path.join(process.cwd(), "eslintManifest.json");
-
-  // get boolean check
-  let isExistEslintResults = fs.existsSync(eslintResultsPath);
-
-  try {
-    eslintResults = JSON.parse(fs.readFileSync(eslintResultsPath));
-  } catch (e) {}
-
-  return gulp.src(SOURCE_JS_PATH, {read: false})
-    .pipe(debug({
-      title: "src"
-    }))
-    .pipe(gulpIf(function (file) {
-        // do checks
-        // eslintResultsPath is already exist
-        // eslintResults[file.relative] is already in eslintResultsPath
-        // eslintResults[file.relative].mtime == file.stat.mtime.toJSON()
-
-        return eslintResults[file.relative] &&
-               eslintResults[file.relative].mtime == file.stat.mtime.toJSON();
-      },
-
-      // add eslint key to file from cache
-      through2(function (file, enc, callback) {
-        file.eslint = eslintResults[file.relative].eslint;
-
-        callback(null, file);
-      }),
-      // we need to combine some pipes into one
-      // we will use stream-combiner2
-      // 1. read file
-      // 2. eslint()
-      // 3. write results to eslintResults
-      combiner(
-        // 1
-        through2(function (file, enc, callback) {
-          // set the contents of the file
-          file.contents = fs.readFileSync(path.normalize(file.path));
-
-          callback(null, file);
-        }),
-        // 2
-        debug({
-          title: "eslint"
-        }),
-        eslint(),
-        // 3
-        through2(function (file, enc, callback) {
-          eslintResults[file.relative] = {
-            "mtime": file.stat.mtime,
-            "eslint": file.eslint
-          };
-
-          callback(null, file);
-        })
-      )
-    ))
-    // eslint.format() outputs the lint results to the console.
-    .pipe(eslint.format())
-    // To have the process exit with an error code (1) on
-    // lint error, return the stream and pipe to failAfterError last.
-    //.pipe(eslint.failAfterError())
-    .on("end", function () {
-      fs.writeFileSync(eslintResultsPath, JSON.stringify(eslintResults), {"encoding": "utf-8"});
-    });
+lazyRequireTask("lint", path.normalize("./tasks/lint"), {
+  SOURCE_JS_PATH: SOURCE_JS_PATH,
+  MANIFEST_NAME: MANIFEST_NAME
 });
