@@ -146,5 +146,5 @@ gulp.task("assets2", (cb) => {
 
 lazyRequireTask("lint", path.normalize("./tasks/lint"), {
   SOURCE_JS_PATH: SOURCE_JS_PATH,
-  MANIFEST_NAME: MANIFEST_NAME
+  MANIFEST_NAME: path.join(process.cwd(), MANIFEST_NAME)
 });
