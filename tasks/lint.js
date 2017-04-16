@@ -17,7 +17,7 @@ module.exports = (options) => {
     let eslintResults = {};
 
     // filename with store
-    let eslintResultsPath = path.join(process.cwd(), options.MANIFEST_NAME);
+    let eslintResultsPath = options.MANIFEST_NAME;
 
     // get boolean check
     let isExistEslintResults = fs.existsSync(eslintResultsPath);
